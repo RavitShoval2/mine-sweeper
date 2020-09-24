@@ -1,153 +1,194 @@
 'use strict'
-console.log('let us build the board!');
+document.addEventListener('DOMContentLoaded', () => {
+    const grid = document.querySelector('.grid')
+    grid.innerHTML = "";
+    const flagsLeft = document.querySelector('#flags-left')
+    const result = document.querySelector('#result')
+    var width = 10
+    var bombAmount = 20
+    var flags = 0;
+    var squares = []
+    var isGameOver = false
+    var life = 3;
 
-const FLAG = '!'
-const MINE = '#'
-var boardSize = 10;
-var minesCount = 10;
-var gBoard;
-var gGame = {
-    score: 1,
-    isOn: false,
-    maxFoodCount: 0
-}
+    function createBoard() {
+        grid.innerHTML = "";
+        isGameOver = false
+        result.innerHTML = "";
+        squares = [];
+        flagsLeft.innerHTML = bombAmount;
 
+        const bombsArray = Array(bombAmount).fill('bomb')
+        const emptyArray = Array(width * width - bombAmount).fill('valid')
+        const gameArray = emptyArray.concat(bombsArray)
+        const shuffledArray = gameArray.sort(() => Math.random() - 0.5)
 
-init();
+        for (var i = 0; i < width * width; i++) {
+            const square = document.createElement('div')
+            square.setAttribute('id', i)
+            square.classList.add(shuffledArray[i])
+            grid.appendChild(square)
+            squares.push(square)
+            //normal click
+            square.addEventListener('click', function (e) {
+                click(square)
+            })
 
-function init() {
-    var board = createBoard(boardSize, minesCount);
-    console.log(board);
-    renderBoard(board);
-
-}
-function renderBoard(board) {
-    var strHtml = '<table>';
-    for (var i = 0; i < board.length; i++) {
-        var row = board[i];
-        strHtml += '<tr>';
-        for (var j = 0; j < row.length; j++) {
-            var cell = row[j];
-            var className = `cell cell-${i}-${j}`;
-            strHtml += `<td onclick="cellClicked(this, ${i}, ${j})"
-            data-i="${i}"
-            data-j="${j}"
-            class="${className}">`;
-            strHtml += cell;
-            strHtml += '</td>';
+            //cntrl and left click
+            square.oncontextmenu = function (e) {
+                e.preventDefault()
+                addFlag(square)
+            }
         }
-        strHtml += '</tr>';
-        strHtml += '</table>';
-    }
-    var elTable = document.querySelector('.board');
-    elTable.innerHTML = strHtml;
-    console.log(strHtml);
-}
 
-function makeCells () {
-    for (var i = 0; i < 10; i++) {
-        for (var j = 0; j < 10; j++){
-            makeIndividualCell(i *10, j*10);
-
-        }
-    }
-}
-    
-function makeIndividualCell (left,top) {
-    var newCell = document.createElement('div');
-    newCell.style.left = left + 'px';
-    newCell.style.top = top + 'px';
-    newCell.setAttribute('class','cells');
-    document.getElementsByTagName('body') [0].appendChild(newCell)
-
-}
-makeCells();
-function createBoard(boardSize, minesCount) {
-    var board = [];
-    for (var row = 0; row < boardSize; row++) {
-        board[row] = []
-        for (var coll = 0; coll < boardSize; coll++) {
-            board[row][coll] = cell(row, coll, false, false, false, 0);
+        //add numbers
+        for (var i = 0; i < squares.length; i++) {
+            var total = 0
+            const isLeftEdge = (i % width === 0)
+            const isRightEdge = (i % width === width - 1)
+            if (squares[i].classList.contains('valid')) {
+                if (i > 0 && !isLeftEdge && squares[i - 1].classList.contains('bomb')) total++
+                if (i > 9 && !isRightEdge && squares[i + 1 - width].classList.contains('bomb')) total++
+                if (i > 10 && squares[i - width].classList.contains('bomb')) total++
+                if (i > 11 && !isLeftEdge && squares[i - 1 - width].classList.contains('bomb')) total++
+                if (i < 98 && !isRightEdge && squares[i + 1].classList.contains('bomb')) total++
+                if (i < 90 && !isLeftEdge && squares[i - 1 + width].classList.contains('bomb')) total++
+                if (i < 88 && !isRightEdge && squares[i + 1 + width].classList.contains('bomb')) total++
+                if (i < 89 && squares[i + width].classList.contains('bomb')) total++
+                squares[i].setAttribute('data', total)
+            }
         }
     }
-    board[0][1].mined = true;
-    board[0][2].mined = true;
-    board[0][3].mined = true;
-    // board = randomizeMines(board, minesCount);
-    negsMinesCount(board, boardSize);
-    return board;
-}
+    createBoard()
 
-function randomizeMines(board, minesCount) {
-    var mineCoor = [];
-    for (var i = 0; i < minesCount; i++) {
-        var randRowCoor = getRandomInt(0, boardSize);
-        var randCollCoor = getRandomInt(0, boardSize);
-        var cell = [randRowCoor] [randCollCoor];
-        while (mineCoor.includes(cell)) {
-            randRowCoor = getRandomInt(0, boardSize);
-            randCollCoor = getRandomInt(0, boardSize);
-            cell = [randRowCoor] [randCollCoor];
-            
-        }
-        mineCoor.push(cell);
-        board[cell].mined = true;
-    }
-    return board;
-}
-
-function negsMinesCount(board, size) {
-    var cell;
-    for (var i = 0; i < size; i++) {
-        for (var j = 0; j < size; j++) {
-            cell = board[i][j];
-            cell.negsMineCount = countNeighbors(i,j,board);
-            //check if cell mined: if true, lives--
-            //if not: check the cells surrounding it 
+    //add Flag with right click
+    function addFlag(square) {
+        if (isGameOver) return
+        if (!square.classList.contains('checked') && (flags < bombAmount)) {
+            if (!square.classList.contains('flag')) {
+                square.classList.add('flag')
+                square.innerHTML = ' 🚩'
+                flags++
+                flagsLeft.innerHTML = bombAmount - flags
+                checkForWin()
+            } else {
+                square.classList.remove('flag')
+                square.innerHTML = ''
+                flags--
+                flagsLeft.innerHTML = bombAmount - flags
+            }
         }
     }
-}
+
+    //click on square actions
+    function click(square) {
+        var currentId = square.id
+        if (isGameOver) return
+        if (square.classList.contains('checked') || square.classList.contains('flag')) return
+        if (square.classList.contains('bomb')) {
+            gameOver(square)
+        } else {
+            var total = square.getAttribute('data')
+            if (total != 0) {
+                square.classList.add('checked')
+                if (total == 1) square.classList.add('one')
+                if (total == 2) square.classList.add('two')
+                if (total == 3) square.classList.add('three')
+                if (total == 4) square.classList.add('four')
+                square.innerHTML = total
+                return
+            }
+            checkSquare(square, currentId)
+        }
+        square.classList.add('checked')
+    }
+    function checkSquare(square, currentId) {
+        const isLeftEdge = (currentId % width === 0)
+        const isRightEdge = (currentId % width === width - 1)
+
+        setTimeout(() => {
+            if (currentId > 0 && !isLeftEdge) {
+                const newId = squares[parseInt(currentId) - 1].id
+                const newSquare = document.getElementById(newId)
+                click(newSquare)
+            }
+            if (currentId > 9 && !isRightEdge) {
+                const newId = squares[parseInt(currentId) + 1 - width].id
+                const newSquare = document.getElementById(newId)
+                click(newSquare)
+            }
+            if (currentId > 10) {
+                const newId = squares[parseInt(currentId - width)].id
+                const newSquare = document.getElementById(newId)
+                click(newSquare)
+            }
+            if (currentId > 11 && !isLeftEdge) {
+                const newId = squares[parseInt(currentId) - 1 - width].id
+                const newSquare = document.getElementById(newId)
+                click(newSquare)
+            }
+            if (currentId < 98 && !isRightEdge) {
+                const newId = squares[parseInt(currentId) + 1].id
+                const newSquare = document.getElementById(newId)
+                click(newSquare)
+            }
+            if (currentId < 90 && !isLeftEdge) {
+                const newId = squares[parseInt(currentId) - 1 + width].id
+                const newSquare = document.getElementById(newId)
+                click(newSquare)
+            }
+            if (currentId < 88 && !isRightEdge) {
+                const newId = squares[parseInt(currentId) + 1 + width].id
+                const newSquare = document.getElementById(newId)
+                click(newSquare)
+            }
+            if (currentId < 89) {
+                const newId = squares[parseInt(currentId) + width].id
+                const newSquare = document.getElementById(newId)
+                click(newSquare)
+            }
+        }, 10)
+    }
+
+    //game over
+    function gameOver(square) {
+        life--;
+        result.innerHTML = 'BOOM! Game Over! You are left with ' + life + ' lives'
+        isGameOver = true
 
 
-function countNeighbors(cellI, cellJ, board) {
-    var minesCount = 0;
-    for (var i = cellI - 1; i <= cellI + 1; i++) {
-        if (i < 0 || i >= board.length) continue;
-        for (var j = cellJ - 1; j <= cellJ + 1; j++) {
-            if (j < 0 || j >= board[i].length) continue;
-            if (i === cellI && j === cellJ) continue;
-            if (board[i][j].mined) minesCount++;
+        //show ALL the bombs
+        squares.forEach(square => {
+            if (square.classList.contains('bomb')) {
+                square.innerHTML = '💣'
+                square.classList.remove('bomb')
+                square.classList.add('checked')
+            }
+        }
+        )
+        //counter for lives
+        if (life > 0 && life < 3) {
+            //timer for restarting the game 
+            setTimeout(function () { createBoard(); }, 3000);
+        }
+        else {
+            result.innerHTML = "No More Lives! Game will restart in 5 seconds";
+            setTimeout(function () { playAgain(); }, 7000);
         }
     }
-    return minesCount;
-}
-
-function isMined(board, row, coll) {
-    var cell = board[row + "" + coll];
-    var mined = 0;
-    if (typeof cell !== 'undefined') {
-        mined = cell.mined ? 1 : 0;
+    function playAgain() {
+        window.location.reload();
     }
-    return mined;
-}
-
-
-function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min)) + min;
-}
-
-
-function gameOver() {
-    console.log('Game Over');
-    gGame.isOn = false;
-    
-    var elModal = document.querySelector('.modal');
-    elModal.style.display = 'block';
-    let span = elModal.querySelector('span');
-    span.innerHTML = "Your score is " + gGame.score;
-    var elBtn = elModal.querySelector('.my-btn');
-    elBtn.onclick = function () {
-        elModal.style.display = 'none';
-        init();
+    function checkForWin() {
+        var matches = 0
+        for (var i = 0; i < squares.length; i++) {
+            if (squares[i].classList.contains('flag') && squares[i].classList.contains('bomb')) {
+                matches++
+            }
+            if (matches === bombAmount) {
+                result.innerHTML = 'YOU WIN!'
+                isGameOver = true
+            }
+        }
     }
-}
+});
