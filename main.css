@@ -30,6 +30,10 @@
     box-sizing: border-box;
   }
   
+.radio-btn-wrapper {
+  text-align: left;
+}
+  
   .checked {
     height: 40px;
     width: 40px;

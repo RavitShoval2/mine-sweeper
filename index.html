@@ -12,11 +12,24 @@
   MINE SWEEPER!!</u>
 </h1>
 
-  <div class="container" style="
-    margin-left: 395px;">
-    <div class="grid"></div>
-    <div>Flags left: <span id='flags-left'></span></div>
-    <div id="result"></div>
+  <div class="container">
+    <div class="wrapper">
+      <div class="grid"></div>
+      <div class="game-mode">
+        <div class="radio-btn-wrapper">
+          <input type="radio" id="8-field" name="field" value="8" class="radio-btn">
+          <label for="Male">Easy</label><br>
+          <input type="radio" id="10-field" name="field" value="10" class="radio-btn">
+          <label for="female">Medium</label><br>
+          <input type="radio" id="12-field" name="field" value="12" class="radio-btn">
+          <label for="other">hard</label>
+        </div>
+        <button class="difficulty-btn">start</button>
+      </div>
+    </div>
+    <div class="flag">Flags left: <span id="flags-left"></span> </div>
+    <div id="result">
+  </div>
 </div>
 </body>
 </html>

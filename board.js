@@ -1,18 +1,41 @@
 'use strict'
+//add a timer button to start on the first click
+// //support 3 difficulties: 4X4 (2 mines), 8X8(12 mines) 12X12 (30 mines)
+// • Normal
+// • Sad & Dead – LOSE (stepped on a mine)
+// • Sunglasses – WIN
+// • Clicking the smiley should reset the game
+//add a hint- the cell and its neighbors are revealed for a second, and the clicked hint disappears.
+
 document.addEventListener('DOMContentLoaded', () => {
     const grid = document.querySelector('.grid')
     grid.innerHTML = "";
     const flagsLeft = document.querySelector('#flags-left')
     const result = document.querySelector('#result')
-    var width = 10
-    var bombAmount = 20
+    const radio_btn = document.querySelectorAll('.radio-btn');
+    radio_btn[0].checked = true;
+    const difficulty_btn = document.querySelector('.difficulty-btn');
+    
+    var width = 10;
+    var bombAmount = 20;
     var flags = 0;
     var squares = []
     var isGameOver = false
     var life = 3;
 
+    difficulty_btn.addEventListener('click', () => {
+        for(let i = 0; i < radio_btn.length; i++) {
+          if(radio_btn[i].checked) {
+            width = parseInt(radio_btn[i].value)
+          }
+        }
+        createBoard()
+      })
+
     function createBoard() {
         grid.innerHTML = "";
+        grid.style.gridTemplateColumns = `repeat(${width}, 1unit)`
+        grid.style.gridTemplateRows = `repeat(${width}, 1unit)`
         isGameOver = false
         result.innerHTML = "";
         squares = [];
@@ -34,14 +57,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 click(square)
             })
 
-            //cntrl and left click
             square.oncontextmenu = function (e) {
                 e.preventDefault()
                 addFlag(square)
             }
         }
-
-        //add numbers
         for (var i = 0; i < squares.length; i++) {
             var total = 0
             const isLeftEdge = (i % width === 0)
