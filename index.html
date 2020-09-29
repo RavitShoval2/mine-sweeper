@@ -3,33 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <title>MINESWEEPER</title>
-  <link rel="stylesheet" href="css/main.css"></link>
-  <script src="js/board.js" charset="utf-8"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h1 align="center"><u>
-  MINE SWEEPER!!</u>
-</h1>
-
+  <h1 align="center"><u>
+    🅼🅸🅽🅴-🆂🆆🅴🅴🅿🅴🆁! </u>
+  </h1>
+  <p> ℂ𝕙𝕠𝕠𝕤𝕖 𝕝𝕖𝕧𝕖𝕝 𝕒𝕟𝕕 𝕙𝕚𝕥 𝕥𝕙𝕖 '𝕤𝕥𝕒𝕣𝕥' 𝕓𝕦𝕥𝕥𝕠𝕟 </p>
+  <div class="radio-btn-wrapper">
+    <label for="8-field"><input type="radio" id="8-field" name="field" value="8" class="radio-btn"> 😐 𝔼𝕒𝕤𝕪</label>
+    <label for="10-field"><input type="radio" id="10-field" name="field" value="10" class="radio-btn">🙃 𝕄𝕖𝕕𝕚𝕦𝕞</label>
+    <label for="12-field"><input type="radio" id="12-field" name="field" value="12" class="radio-btn">😀 𝕙𝕒𝕣𝕕</label>
+    <br>
+    <button class="difficulty-btn">𝕊𝕥𝕒𝕣𝕥</button>
+  </div>
   <div class="container">
     <div class="wrapper">
-      <div class="grid"></div>
       <div class="game-mode">
-        <div class="radio-btn-wrapper">
-          <input type="radio" id="8-field" name="field" value="8" class="radio-btn">
-          <label for="Male">Easy</label><br>
-          <input type="radio" id="10-field" name="field" value="10" class="radio-btn">
-          <label for="female">Medium</label><br>
-          <input type="radio" id="12-field" name="field" value="12" class="radio-btn">
-          <label for="other">hard</label>
-        </div>
-        <button class="difficulty-btn">start</button>
+        <br>
+        <button class="hint">𝕙𝕚𝕟𝕥 </button>
+        <button class="cancel-hint" style="display: none;">⏳</button>
+        <br><br>
+        <button class="time-btn"> Time: <span id='time-spent'></span> s</button>
       </div>
+      <div class="grid"></div>
     </div>
-    <div class="flag">Flags left: <span id="flags-left"></span> </div>
-    <div id="result">
+    <div class='infoText'>
+    <div class="flag">𝔽𝕝𝕒𝕘𝕤 𝕝𝕖𝕗𝕥 🚩: <span id='flags-left'></span></div>
+    <div style="padding-right: 15px;">𝕙𝕚𝕟𝕥𝕤 𝕝𝕖𝕗𝕥: <span id='hints-left'></span></div>
+    <div id="result"></div>
+    </div>
   </div>
+  <script src="main.js"></script>
 </div>
 </body>
 </html>
